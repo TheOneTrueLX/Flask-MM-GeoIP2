@@ -23,7 +23,7 @@ class GeoIP2(object):
         self.webservice_license = app.config['FLASK_MM_GEOIP2_WEBSERVICE_LICENSE']
         self.db_path = app.config['FLASK_MM_GEOIP2_DB_PATH']
         self.development_mode = app.config['FLASK_MM_GEOIP2_DEVELOPMENT_MODE']
-        self.development_ip = app.config['FLASK_MM_GEOIP2_DEVELOPMENT_MODE']
+        self.development_ip = app.config['FLASK_MM_GEOIP2_DEVELOPMENT_IP']
         
         self.app = app
     
