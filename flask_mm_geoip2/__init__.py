@@ -2,6 +2,7 @@ import os
 import re
 import geoip2.database
 import geoip2.webservice
+from geoip2.errors import AddressNotFoundError
 from flask import current_app, _app_ctx_stack
 
 VALID_SERVICE_TYPES = [
@@ -57,8 +58,10 @@ class GeoIP2(object):
                         result = getattr(reader, lookup_function)(ip_address)
                     except AttributeError:
                         raise ValueError('Unable to determine MaxMind database type - make sure you didn\'t rename the database.')
-                    else:
-                        return result
+                    except AddressNotFoundError:
+                        return None
+
+                    return result
                 else:
                     raise FileNotFoundError('The MaxMind DB at {} could not be found.'.format(db_path))
             else:
@@ -67,7 +70,10 @@ class GeoIP2(object):
         else:
             # Performing an API call
             if webservice_id and webservice_license:
-                client = geoip2.webservice.Client(self.webservice_id, self.webservice_license)
+                try:
+                    client = geoip2.webservice.Client(self.webservice_id, self.webservice_license)
+                except AddressNotFoundError:
+                    return None
 
                 # TODO: There's a lot that can go wrong here (see geoip2.errors), 
                 # and there is probably a potential for something very stupid to 
