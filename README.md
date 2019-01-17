@@ -28,8 +28,7 @@ from flask_mm_geoip2 import GeoIP2
 app = Flask(__name__)
 
 # See "usage" below for an explanation of the configuration options
-app.config['MAXMIND_SERVICE_TYPE'] = 'local'
-app.config['MAXMIND_DB_PATH'] = '/path/to/your/GeoLite2-City.mmdb'
+app.config['FLASK_MM_GEOIP2_DB_PATH'] = '/path/to/your/GeoLite2-City.mmdb'
 
 geoip = GeoIP2(app)
 ```
@@ -43,8 +42,7 @@ geoip = GeoIP2()
 def create_app():
     app = Flask(__name__)
     
-    app.config['MAXMIND_SERVICE_TYPE'] = 'local'
-    app.config['MAXMIND_DB_PATH'] = '/path/to/your/GeoLite2-City.mmdb'
+    app.config['FLASK_MM_GEOIP2_DB_PATH'] = '/path/to/your/GeoLite2-City.mmdb'
 
     geoip.init_app(app)
 
@@ -53,33 +51,41 @@ def create_app():
 
 Usage
 -----
-MaxMind provides two different methods of obtaining GeoIP data:
-* Via API calls to a MaxMind-hosted web service
-* Via lookups to a local database
+Flask-MM-GeoIP2 provides two functions for consuming MaxMind's GeoIP services:
+* `get_webservice_geoip_data()`: Performs GeoIP lookups via API calls to MaxMind's [GeoIP2 Precision Web Services](https://dev.maxmind.com/geoip/geoip2/web-services/).
+* `get_local_geoip_data()`: Performs GeoIP lookups via lookups to a local MaxMind database file.
 
-The GeoIP2 class in Flask-MM-GeoIP2 exposes a single function: get_geoip_data().  What that function does varies wildly depending on the configuration settings you provide it.
+The `get_webservice_geoip_data()` function requires the following configuration directives be set:
+* `FLASK_MM_GEOIP2_WEBSERVICE_ID`: This should be your MaxMind user ID.
+* `FLASK_MM_GEOIP2_WEBSERVICE_LICENSE`: This configuration option should be your MaxMind license number.
+The usual warnings and caveats about leaking API keys on Github apply.
 
-* MAXMIND_SERVICE_TYPE: can be either 'local' or 'webservice'.
-* MAXMIND_WEBSERVICE_ID: if MAXMIND_SERVICE_TYPE is set to 'webservice', this configuration option should be your MaxMind user ID.
-* MAXMIND_WEBSERVICE_LICENSE: if MAXMIND_SERVICE_TYPE is set to 'webservice', this configuration option should be your MaxMind license number.
-* MAXMIND_DB_PATH: if MAXMIND_SERVICE_TYPE is set to 'local', this is the absolute path to your MaxMind database file.
+The `get_local_geoip_data()` function requires the following configuration directive be set:
+* `FLASK_MM_GEOIP2_DB_PATH`: This is the absolute path to your MaxMind database file.  This comes with a **BIG WARNING**: For the love of God and all that is good and holy, **DO NOT RENAME THE DATABASE FILE!!** Flask-MM-GeoIP2 uses the filename to determine what GeoIP2 function call to make, so renaming the file will break things.
 
-Flask-MM-GeoIP2 is (in theory, at least) compatible with all of MaxMind's free and paid services.  MaxMind makes three of their databases available under a Creative Commons Attribution-ShareAlike 4.0 License.  Those can be [downloaded from here](https://dev.maxmind.com/geoip/geoip2/geolite2/).
-
-This comes with a BIG WARNING: For the love of God and all that is good and holy, **DO NOT RENAME THE DATABASE FILE!!** Flask-MM-GeoIP2 uses the filename to determine what GeoIP2 function call to make, so renaming the file will break things.
+Flask-MM-GeoIP2 is (in theory, at least) compatible with all of MaxMind's free and paid databases.  Flask-MM-GeoIP2 does not distribute with any of MaxMind's databases -- it is up to you to obtain one.  MaxMind makes three of their databases available under a Creative Commons Attribution-ShareAlike 4.0 License, which can be [downloaded from here](https://dev.maxmind.com/geoip/geoip2/geolite2/).
 
 Once the setup and configuration is in place, you can perform GeoIP lookups like this:
 
 ```python
-response = geoip.get_geoip_data('1.1.1.1')
+# Webservice Lookup
+response = geoip.get_webservice_geoip_data('1.1.1.1')  # defaults to 'city' lookups
+response = geoip.get_webservice_geoip_data('1.1.1.1', query_type='country')
+
+# Local Database Lookup
+# Does not accept a 'query_type' parameter.  Instead, it determines which style of
+# lookup to perform based on the type of local database it's performing its
+# lookups against.
+response = geoip.get_local_geoip_data('1.1.1.1')
 ```
 
-This returns a GeoIP2-python response object.  Depending whether you're doing a local or web service lookup, and depending on the type of database you're using, the contents of the response object can vary wildly, so due care should be exercised when consuming the contents of the response object.
+These functions return the appropriate geoip2.model object based on the type of lookup performed, or `None` in the event that the address lookup fails.  Depending on the type of lookup you're performing, the contents of the response can vary wildly, so due care should be exercised when consuming it in your application.  See the [MaxMind GeoIP2-Python documentation](https://github.com/maxmind/GeoIP2-python) for more information on response formats.
 
-See the [MaxMind GeoIP2-Python documentation](https://github.com/maxmind/GeoIP2-python) for more information.
+Development Options
+-------------------
+If your Flask site is currently under development, you can set `FLASK_MM_GEOIP2_DEVELOPMENT_MODE = True`.  This alters the behavior of get_geoip_data() to ignore the IP address passed in its arguments and always return the IP address set in `FLASK_MM_GEOIP2_DEVELOPMENT_IP` (which is 1.1.1.1 by default).  This way, you can expect a consistent result from the function while you're working on your site.
 
 To-Do
 -----
 * Create some unit tests
-* Improve error handling for web service tests - the GeoIP2 Python API implements custom exceptions that probably make sense in the context of a standalone Python app, but will probably behave clumsily in the context of a Flask application.
-* Handling for invalid IP addresses is probably very ugly.  Liberal use of try/except is recommended until better error handling is implemented.
+* Improve error handling for web service lookups - the GeoIP2 Python API implements custom exceptions that probably make sense in the context of a standalone Python app, but will probably behave clumsily in the context of a Flask application.
