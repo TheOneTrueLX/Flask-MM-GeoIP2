@@ -72,6 +72,10 @@ class GeoIP2(object):
                 # TODO: There's a lot that can go wrong here (see geoip2.errors), 
                 # and there is probably a potential for something very stupid to 
                 # abend the Flask app.
-                return client.insights(ip_address)
+
+                # TODO: API calls are pinned to "city" since, unlike the local db
+                # method, we have no good way of determining whether we should use
+                # city or country to perform this lookup.  
+                return client.city(ip_address)
             else:
                 raise TypeError('Either MAXMIND_WEBSERVICE_ID or MAXMIND_WEBSERVICE_LICENSE is not set.')
