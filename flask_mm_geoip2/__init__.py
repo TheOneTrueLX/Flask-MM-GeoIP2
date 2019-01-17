@@ -63,6 +63,10 @@ class GeoIP2(object):
 
 
     def get_webservice_geoip_data(self, ip_address, query_type='city'):
+        VALID_QUERY_TYPES = ['city','country','insights']
+        if not query_type in VALID_QUERY_TYPES:
+            raise ValueError('\'{}\' is not a valid query type'.format(query_type))
+        
         # Performing an API call
         if webservice_id and webservice_license:
             client = geoip2.webservice.Client(self.webservice_id, self.webservice_license)
