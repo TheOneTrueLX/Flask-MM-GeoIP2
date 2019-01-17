@@ -62,10 +62,10 @@ class GeoIP2(object):
             raise ValueError('The FLASK_MM_GEOIP2_DB_PATH configuration directive is not set.')
 
 
-    def get_webservice_geoip_data(self, ip_address, query_type='city')
+    def get_webservice_geoip_data(self, ip_address, query_type='city'):
         # Performing an API call
         if webservice_id and webservice_license:
-                client = geoip2.webservice.Client(self.webservice_id, self.webservice_license)
+            client = geoip2.webservice.Client(self.webservice_id, self.webservice_license)
 
             # TODO: There's a lot that can go wrong here (see geoip2.errors), 
             # and there is probably a potential for something very stupid to 
