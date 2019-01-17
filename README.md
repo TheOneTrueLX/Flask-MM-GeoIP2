@@ -4,7 +4,7 @@ Flask-MM-GeoIP2 is a wrapper extension for MaxMind's [GeoIP2-python](https://git
 
 Disclaimer
 ----------
-This code is VERY alpha.  I talking "it-works-but-I-have-no-idea-why" alpha.  It's completely untested apart from a small handful of use cases.  USE AT YOUR OWN RISK!
+This code is VERY alpha.  I'm talking "it-works-but-I-have-no-idea-why" alpha.  It's completely untested apart from a small handful of use cases.  USE AT YOUR OWN RISK!
 
 Installation
 ------------
