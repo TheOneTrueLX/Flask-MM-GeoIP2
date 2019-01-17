@@ -66,7 +66,7 @@ The GeoIP2 class in Flask-MM-GeoIP2 exposes a single function: get_geoip_data().
 
 Flask-MM-GeoIP2 is (in theory, at least) compatible with all of MaxMind's free and paid services.  MaxMind makes three of their databases available under a Creative Commons Attribution-ShareAlike 4.0 License.  Those can be [downloaded from here](https://dev.maxmind.com/geoip/geoip2/geolite2/).
 
-This comes with a BIG WARNING: For the love of God and all that is good and holy, **DO NOT RENAME THE DATABASE FILE!!*** Flask-MM-GeoIP2 uses the filename to determine what GeoIP2 function call to make, so renaming the file will break things.
+This comes with a BIG WARNING: For the love of God and all that is good and holy, **DO NOT RENAME THE DATABASE FILE!!** Flask-MM-GeoIP2 uses the filename to determine what GeoIP2 function call to make, so renaming the file will break things.
 
 Once the setup and configuration is in place, you can perform GeoIP lookups like this:
 
